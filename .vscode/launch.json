@@ -10,10 +10,7 @@
       "request": "launch",
       "module": "uvicorn",
       "args": [
-        "src.app:app",
-        "--reload",
-        "--reload-include",
-        "src/static/*"
+        "src.app:app"
       ],
       "jinja": true
     }
