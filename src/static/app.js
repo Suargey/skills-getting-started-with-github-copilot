@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
-      const response = await fetch("/activities");
+      const response = await fetch("/activities", { cache: "no-store" });
       const activities = await response.json();
 
       // Clear loading message
@@ -41,7 +41,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (participants.length > 0) {
           participants.forEach((participant) => {
             const participantItem = document.createElement("li");
-            participantItem.textContent = participant;
+            participantItem.className = "participant-item";
+
+            const participantLabel = document.createElement("span");
+            participantLabel.textContent = participant;
+            participantItem.appendChild(participantLabel);
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "participant-remove";
+            removeButton.setAttribute("aria-label", `Remove ${participant}`);
+            removeButton.innerHTML = "×";
+            removeButton.addEventListener("click", async () => {
+              try {
+                const response = await fetch(
+                  `/activities/${encodeURIComponent(name)}/participants/${encodeURIComponent(participant)}`,
+                  { method: "DELETE", cache: "no-store" }
+                );
+
+                if (!response.ok) {
+                  throw new Error("Unable to remove participant");
+                }
+
+                await fetchActivities();
+              } catch (error) {
+                console.error("Error removing participant:", error);
+              }
+            });
+
+            participantItem.appendChild(removeButton);
             participantsList.appendChild(participantItem);
           });
         } else {
@@ -80,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`,
         {
           method: "POST",
+          cache: "no-store",
         }
       );
 
